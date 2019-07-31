@@ -1,0 +1,25 @@
+1)
+fig = plt.figure()
+ax = fig.add_axes([.125, .125, .775, .755])
+ax.hist(data = df, x = 'num_var')
+
+_________________________________________________________________
+2)
+fig = plt.figure()
+ax = fig.add_axes([.125, .125, .775, .755])
+base_color = sb.color_palette()[0]
+sb.countplot(data = df, x = 'cat_var', color = base_color, ax = ax)
+
+____________________________________________________________________
+3)
+plt.figure(figsize = [10, 5]) # larger figure size for subplots
+
+# example of somewhat too-large bin size
+plt.subplot(1, 2, 1) # 1 row, 2 cols, subplot 1
+bin_edges = np.arange(0, df['num_var'].max()+4, 4)
+plt.hist(data = df, x = 'num_var', bins = bin_edges)
+
+# example of somewhat too-small bin size
+plt.subplot(1, 2, 2) # 1 row, 2 cols, subplot 2
+bin_edges = np.arange(0, df['num_var'].max()+1/4, 1/4)
+plt.hist(data = df, x = 'num_var', bins = bin_edges)
