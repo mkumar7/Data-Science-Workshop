@@ -68,3 +68,19 @@ in a bar chart helps to remind the reader that values are not contiguous in an â
 -type fashion: only that there is an order in levels. With that space removed as in a histogram, 
 it's harder to remember this important bit of interpretation.
 
+_______________________________________________________________________________________________________
+6) Descriptive Statistics, Outliers, and Axis Limits
+
+plt.figure(figsize = [10, 5])
+
+# histogram on left: full data
+plt.subplot(1, 2, 1)
+bin_edges = np.arange(0, df['skew_var'].max()+2.5, 2.5)
+plt.hist(data = df, x = 'skew_var', bins = bin_edges)
+
+# histogram on right: focus in on bulk of data < 35
+plt.subplot(1, 2, 2)
+bin_edges = np.arange(0, 35+1, 1)
+plt.hist(data = df, x = 'skew_var', bins = bin_edges)
+plt.xlim(0, 35) # could also be called as plt.xlim((0, 35))
+
