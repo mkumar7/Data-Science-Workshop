@@ -31,6 +31,11 @@ plot orientation.
 base_color = sb.color_palette()[0]
 sb.violinplot(data = df, x = 'num_var', y = 'cat_var', color = base_color,
               inner = None)
+ _________________________________________________________________________________________________________________________________________
+categories = ['cut','color','clarity']
+g = sb.PairGrid( data = diamonds , x_vars = categories , y_vars = 'carat', size = 5)
+g.map(sb.violinplot , inner = 'quartile');
+plt.xticks(rotation=15)
               
 __________________________________________________________________________________________________________________________________________
 Box Plots
