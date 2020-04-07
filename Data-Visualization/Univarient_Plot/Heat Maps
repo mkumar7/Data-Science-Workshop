@@ -1,0 +1,78 @@
+Heat Maps:
+
+A heat map is a 2-d version of the histogram that can be used as an alternative to a scatterplot. Like a scatterplot, the values of the 
+two numeric variables to be plotted are placed on the plot axes. Similar to a histogram, the plotting area is divided into a grid and the
+number of points in each grid rectangle is added up. Since there won't be room for bar heights, counts are indicated instead by grid cell 
+color. A heat map can be implemented with Matplotlib's hist2d function.
+
+plt.figure(figsize = [12, 5])
+
+# left plot: scatterplot of discrete data with jitter and transparency
+plt.subplot(1, 2, 1)
+sb.regplot(data = df, x = 'disc_var1', y = 'disc_var2', fit_reg = False,
+           x_jitter = 0.2, y_jitter = 0.2, scatter_kws = {'alpha' : 1/3})
+
+# right plot: heat map with bin edges between values
+plt.subplot(1, 2, 2)
+bins_x = np.arange(0.5, 10.5+1, 1)
+bins_y = np.arange(-0.5, 10.5+1, 1)
+plt.hist2d(data = df, x = 'disc_var1', y = 'disc_var2',
+           bins = [bins_x, bins_y])
+plt.colorbar();
+
+Notice that since we have two variables, the "bins" parameter takes a list of two bin edge specifications, one for each dimension.
+Choosing an appropriate bin size is just as important here as it was for the univariate histogram. We add a colorbar function call
+to add a colorbar to the side of the plot, showing the mapping from counts to colors.
+
+As the color in the heatmap gets brighter and moves from blue to yellow, the higher the count of points in the corresponding cell.
+
+Heatmaps can also be used as 2-d versions of bar charts, plotting counts on combinations of two categorical variables instead of numeric
+variables. There is a function in seaborn, heatmap, that is built for categorical heatmaps. This will be discussed in more detail later 
+in the lesson, in the section "Clustered Bar Charts".
+
+Additional Variations
+To select a different color palette, you can set the "cmap" parameter in hist2d. The most convenient way of doing this is to set the
+"cmap" value as a string referencing a built-in Matplotlib palette. A list of valid strings can be found on this part of the Pyplot
+API documentation. A further discussion of color in plots will be left to the next lesson. For now, I will just show an example of
+reversing the default "viridis" color palette, by setting cmap = 'viridis_r'.
+
+Furthermore, I would like to distinguish cells with zero counts from those with non-zero counts. The "cmin" parameter specifies the
+minimum value in a cell before it will be plotted. By adding a cmin = 0.5 parameter to the hist2d call, this means that a cell will 
+only get colored if it contains at least one point.
+
+bins_x = np.arange(0.5, 10.5+1, 1)
+bins_y = np.arange(-0.5, 10.5+1, 1)
+plt.hist2d(data = df, x = 'disc_var1', y = 'disc_var2',
+           bins = [bins_x, bins_y], cmap = 'viridis_r', cmin = 0.5)
+plt.colorbar()
+
+________________________________________________________________________________________________________________________________________
+If you have a lot of data, you might want to add annotations to cells in the plot indicating the count of points in each cell. 
+From hist2d, this requires the addition of text elements one by one, much like how text annotations were added one by one to the 
+bar plots in the previous lesson. We can get the counts to annotate directly from what is returned by hist2d, which includes not
+just the plotting object, but an array of counts and two vectors of bin edges.
+
+# hist2d returns a number of different variables, including an array of counts
+bins_x = np.arange(0.5, 10.5+1, 1)
+bins_y = np.arange(-0.5, 10.5+1, 1)
+h2d = plt.hist2d(data = df, x = 'disc_var1', y = 'disc_var2',
+               bins = [bins_x, bins_y], cmap = 'viridis_r', cmin = 0.5)
+counts = h2d[0]
+
+# loop through the cell counts and add text annotations for each
+for i in range(counts.shape[0]):
+    for j in range(counts.shape[1]):
+        c = counts[i,j]
+        if c >= 7: # increase visibility on darkest cells
+            plt.text(bins_x[i]+0.5, bins_y[j]+0.5, int(c),
+                     ha = 'center', va = 'center', color = 'white')
+        elif c > 0:
+            plt.text(bins_x[i]+0.5, bins_y[j]+0.5, int(c),
+                     ha = 'center', va = 'center', color = 'black')
+                     
+                    
+   If you have too many cells in your heat map, then the annotations will end up being too overwhelming, too much to attend to. 
+   In cases like that, it's best to leave off the annotations and let the data and colorbar speak for themselves. You're more 
+   likely to see annotations in a categorical heat map, where there are going to be fewer cells plotted. Indeed, there is a 
+   parameter built into seaborn's heatmap function for just that, as will be seen later.
+   

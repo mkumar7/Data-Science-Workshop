@@ -1,0 +1,69 @@
+
+Scatterplots:
+
+If we want to inspect the relationship between two numeric variables, the standard choice of plot is the scatterplot. 
+In a scatterplot, each data point is plotted individually as a point, its x-position corresponding to one feature value 
+and its y-position corresponding to the second. One basic way of creating a scatterplot is through Matplotlib's scatter 
+function:
+
+plt.scatter(data = df, x = 'num_var1', y = 'num_var2')
+
+We can see a generally positive relationship between the two variables, as higher values of the x-axis variable are associated 
+with greatly increasing values of the variable plotted on the y-axis.
+
+Alternative Approach
+
+Seaborn's regplot function combines scatterplot creation with regression function fitting:
+
+sb.regplot(data = df, x = 'num_var1', y = 'num_var2')
+The basic function parameters, "data", "x", and "y" are the same for regplot as they are for matplotlib's scatter.
+
+By default, the regression function is linear, and includes a shaded confidence region for the regression estimate. In this case, since
+the trend looks like a \text{log}(y) \propto xlog(y)∝x relationship (that is, linear increases in the value of x are associated with 
+linear increases in the log of y), plotting the regression line on the raw units is not appropriate. If we don't care about the
+regression line, then we could set reg_fit = False in the regplot function call. Otherwise, if we want to plot the regression line on
+the observed relationship in the data, we need to transform the data, as seen in the previous lesson.
+
+def log_trans(x, inverse = False):
+    if not inverse:
+        return np.log10(x)
+    else:
+        return np.power(10, x)
+
+sb.regplot(df['num_var1'], df['num_var2'].apply(log_trans))
+tick_locs = [10, 20, 50, 100, 200, 500]
+plt.yticks(log_trans(tick_locs), tick_locs)
+
+___________________________________________________________________________________________________________________________________________
+Overplotting, Transparency, and Jitter:
+
+If we have a very large number of points to plot or our numeric variables are discrete-valued, then it is possible that using a 
+scatterplot straightforwardly will not be informative. The visualization will suffer from overplotting, where the high amount of 
+overlap in points makes it difficult to see the actual relationship between the plotted variables.
+
+plt.scatter(data = df, x = 'disc_var1', y = 'disc_var2')
+
+In the above plot, we can infer some kind of negative relationship between the two variables, but the degree of variability in the data 
+and strength of relationship are fairly unclear. In cases like this, we may want to employ transparency and jitter to make the 
+scatterplot more informative. Transparency can be added to a scatter call by adding the "alpha" parameter set to a value between 0 
+(fully transparent, not visible) and 1 (fully opaque).
+
+plt.scatter(data = df, x = 'disc_var1', y = 'disc_var2', alpha = 1/5)
+
+Where more points overlap, the darker the image will be. Here, we can now see that there is a moderate negative relationship between 
+the two numeric variables. Values of 0 and 10 on the x-axis are much rarer than the central values.
+
+As an alternative or companion to transparency, we can also add jitter to move the position of each point slightly from its true value.
+This is not a direct option in matplotlib's scatter function, but is a built-in option with seaborn's regplot function. x- and y- jitter
+can be added independently, and won't affect the fit of any regression function, if made:
+
+sb.regplot(data = df, x = 'disc_var1', y = 'disc_var2', fit_reg = False,
+           x_jitter = 0.2, y_jitter = 0.2, scatter_kws = {'alpha' : 1/3})
+
+The jitter settings will cause each point to be plotted in a uniform ±0.2 range of their true values. Note that transparency has been
+changed to be a dictionary assigned to the "scatter_kws" parameter. This is necessary so that transparency is specifically associated
+with the scatter component of the regplot function.
+
+________________________________________________________________________________________________________________________________________
+
+

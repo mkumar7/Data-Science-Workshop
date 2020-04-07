@@ -1,0 +1,80 @@
+Adapted Bar Charts
+Histograms and bar charts were introduced in the previous lesson as depicting the distribution of numeric and categorical variables, 
+respectively, with the height (or length) of bars indicating the number of data points that fell within each bar's range of values. 
+These plots can be adapted for use as bivariate plots by, instead of indicating count by height, indicating a mean or other statistic
+on a second variable.
+
+For example, we could plot a numeric variable against a categorical variable by adapting a bar chart so that its bar heights indicate 
+the mean of the numeric variable. This is the purpose of seaborn's barplot function:
+
+base_color = sb.color_palette()[0]
+sb.barplot(data = df, x = 'cat_var', y = 'num_var', color = base_color)
+
+Different hues are automatically assigned to each category level unless a fixed color is set in the "color" parameter, like in countplot
+and violinplot.
+
+The bar heights indicate the mean value on the numeric variable, with error bars plotted to show the uncertainty in the mean based on
+variance and sample size. The Delta bar dips below the 0 axis due to the negative mean.
+
+As an alternative, the pointplot function can be used to plot the averages as points rather than bars. This can be useful if having bars
+in reference to a 0 baseline aren't important or would be confusing.
+
+sb.pointplot(data = df, x = 'cat_var', y = 'num_var', linestyles = "")
+plt.ylabel('Avg. value of num_var')
+
+By default, pointplotwill connect values by a line. This is fine if the categorical variable is ordinal in nature, but it can be a good 
+idea to remove the line via linestyles = "" for nominal data.
+
+The above plots can be useful alternatives to the box plot and violin plot if the data is not conducive to either of those plot types.
+For example, if the numeric variable is binary in nature, taking values only of 0 or 1, then a box plot or violin plot will not be 
+informative, leaving the adapted bar chart as the best choice for displaying the data.
+
+plt.figure(figsize = [12, 5])
+base_color = sb.color_palette()[0]
+
+# left plot: violin plot
+plt.subplot(1, 3, 1)
+sb.violinplot(data = df, x = 'condition', y = 'binary_out', inner = None,
+              color = base_color)
+plt.xticks(rotation = 10) # include label rotation due to small subplot size
+
+# center plot: box plot
+plt.subplot(1, 3, 2)
+sb.boxplot(data = df, x = 'condition', y = 'binary_out', color = base_color)
+plt.xticks(rotation = 10)
+
+# right plot: adapted bar chart
+plt.subplot(1, 3, 3)
+sb.barplot(data = df, x = 'condition', y = 'binary_out', color = base_color)
+plt.xticks(rotation = 10)
+
+Adapted Histograms
+Matplotlib's hist function can also be adapted so that bar heights indicate value other than a count of points through the use of the
+"weights" parameter. By default, each data point is given a weight of 1, so that the sum of point weights in each bin is equal to the
+number of points. If we change the weights to be a representative function of each point's value on a second variable, then the sum
+will end up representing something other than a count.
+
+bin_edges = np.arange(0, df['num_var'].max()+1/3, 1/3)
+
+# count number of points in each bin
+bin_idxs = pd.cut(df['num_var'], bin_edges, right = False, include_lowest = True,
+                  labels = False).astype(int)
+pts_per_bin = df.groupby(bin_idxs).size()
+
+num_var_wts = df['binary_out'] / pts_per_bin[bin_idxs].values
+
+# plot the data using the calculated weights
+plt.hist(data = df, x = 'num_var', bins = bin_edges, weights = num_var_wts)
+plt.xlabel('num_var')
+plt.ylabel('mean(binary_out)')
+
+To get the mean of the y-variable ("binary_out") in each bin, the weight of each point should be equal to the y-variable value, 
+divided by the number of points in its x-bin (num_var_wts). As part of this computation, we make use of pandas' cut function in
+order to associate each data point to a particular bin (bin_idxs). The labels = False parameter means that each point's bin 
+membership is associated by a numeric index, rather than a string. We use these numeric indices into the pts_per_bin, with the
+.values at the end necessary in order for the Series' indices to not be confused between the indices of df['binary_out'].
+
+This plot shows that the average outcome of the y-variable "binary_out" generally increases across values of the x-variable "num_var".
+
+More commonly, you'll see plots summarizing one numeric variable against values of a second numeric variable not as adapted histograms,
+but instead as line plots. These are covered on the next page.

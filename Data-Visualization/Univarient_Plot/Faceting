@@ -1,0 +1,46 @@
+Faceting
+One general visualization technique that will be useful for you to know about to handle plots of two or more variables is faceting.
+In faceting, the data is divided into disjoint subsets, most often by different levels of a categorical variable. For each of these
+subsets of the data, the same plot type is rendered on other variables. Faceting is a way of comparing distributions or relationships
+across levels of additional variables, especially when there are three or more variables of interest overall. While faceting is most
+useful in multivariate visualization, it is still valuable to introduce the technique here in our discussion of bivariate plots.
+
+For example, rather than depicting the relationship between one numeric variable and one categorical variable using a violin plot or
+box plot, we could use faceting to look at a histogram of the numeric variable for subsets of the data divided by categorical variable
+levels. Seaborn's FacetGrid class facilitates the creation of faceted plots. There are two steps involved in creating a faceted plot.
+First, we need to create an instance of the FacetGrid object and specify the feature we want to facet by ("cat_var" in our example).
+Then we use the map method on the FacetGrid object to specify the plot type and variable(s) that will be plotted in each subset (in
+this case, histogram on "num_var").
+
+g = sb.FacetGrid(data = df, col = 'cat_var')
+g.map(plt.hist, "num_var")
+
+In the map call, just set the plotting function and variable to be plotted as positional arguments. Don't set them as keyword arguments,
+like x = "num_var", or the mapping won't work properly.
+
+Notice that each subset of the data is being plotted independently. Each uses the default of ten bins from hist to bin together the data,
+and each plot has a different bin size. Despite that, the axis limits on each facet are the same to allow clear and direct comparisons
+between groups. It's still worth cleaning things a little bit more by setting the same bin edges on all facets. Extra visualization
+parameters can be set as additional keyword arguments to the map function.
+
+bin_edges = np.arange(-3, df['num_var'].max()+1/3, 1/3)
+g = sb.FacetGrid(data = df, col = 'cat_var')
+g.map(plt.hist, "num_var", bins = bin_edges)
+
+Additional Variation
+If you have many categorical levels to plot, then you might want to add more arguments to the FacetGrid object initialization to
+facilitate clarity in conveyance of information. The example below includes a categorical variable, "many_cat_var", that has fifteen
+different levels. Setting col_wrap = 5 means that the plots will be organized into rows of five facets each, rather than a single long
+row of fifteen plots.
+
+group_means = df.groupby(['many_cat_var']).mean()
+group_order = group_means.sort_values(['num_var'], ascending = False).index
+
+g = sb.FacetGrid(data = df, col = 'many_cat_var', col_wrap = 5, size = 2,
+                 col_order = group_order)
+g.map(plt.hist, 'num_var', bins = np.arange(5, 15+1, 1))
+g.set_titles('{col_name}')
+
+Other operations may be performed to increase the immediate readability of the plots: setting each facet height to 2 inches ("size"),
+sorting the facets by group mean ("col_order"), limiting the number of bin edges, and changing the titles of each facet to just the
+categorical level name using the set_titles method and {col_name} template variable.

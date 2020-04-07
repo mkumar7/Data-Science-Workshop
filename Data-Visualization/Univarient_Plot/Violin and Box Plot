@@ -1,0 +1,91 @@
+Violin Plots:
+There are a few ways of plotting the relationship between one quantitative and one qualitative variable, that demonstrate the data at
+different levels of abstraction. The violin plot is on the lower level of abstraction. For each level of the categorical variable, a
+distribution of the values on the numeric variable is plotted. The distribution is plotted as a kernel density estimate, something 
+like a smoothed histogram. There is an extra section at the end of the previous lesson that provides more insight into kernel density
+estimates.
+
+Seaborn's violinplot function can be used to create violin plots combined with box plots – we'll discuss box plots on the next page.
+
+sb.violinplot(data = df, x = 'cat_var', y = 'num_var')
+
+Here, you can see that the numeric data takes on a different shape in each categorical level: Some bimodality is suggested in group Alpha,
+a relatively high variance is observed in Beta, and Gamma and Delta are skewed negatively and positively, respectively. You can also see 
+that each level has been rendered in a different color, like how the plain countplot was in the previous lesson. We can set the "color" 
+parameter to make each curve the same color if it is not meaningful.
+
+Inside each curve, there is a black shape with a white dot inside. This is the miniature box plot mentioned above. A further discussion
+of box plots will be performed on the next page. If you'd like to remove the box plot, you can set the inner = None parameter in the 
+violinplot call to simplify the look of the final visualization.
+
+base_color = sb.color_palette()[0]
+sb.violinplot(data = df, x = 'cat_var', y = 'num_var', color = base_color,
+              inner = None)
+              
+Additional Variation:
+Much like how the bar chart could be rendered with horizontal bars, the violin plot can also be rendered horizontally. Seaborn is smart 
+enough to make an appropriate inference on which orientation is requested, depending on whether "x" or "y" receives the categorical 
+variable. But if both variables are numeric (e.g., one is discretely-valued) then the "orient" parameter can be used to specify the 
+plot orientation.
+
+base_color = sb.color_palette()[0]
+sb.violinplot(data = df, x = 'num_var', y = 'cat_var', color = base_color,
+              inner = None)
+ _________________________________________________________________________________________________________________________________________
+categories = ['cut','color','clarity']
+g = sb.PairGrid( data = diamonds , x_vars = categories , y_vars = 'carat', size = 5)
+g.map(sb.violinplot , inner = 'quartile');
+plt.xticks(rotation=15)
+              
+__________________________________________________________________________________________________________________________________________
+Box Plots
+A box plot is another way of showing the relationship between a numeric variable and a categorical variable. Compared to the violin 
+plot, the box plot leans more on summarization of the data, primarily just reporting a set of descriptive statistics for the numeric 
+values on each categorical level. A box plot can be created using seaborn's boxplot function.
+
+plt.figure(figsize = [10, 5])
+base_color = sb.color_palette()[0]
+
+# left plot: violin plot
+plt.subplot(1, 2, 1)
+ax1 = sb.violinplot(data = df, x = 'cat_var', y = 'num_var', color = base_color)
+
+# right plot: box plot
+plt.subplot(1, 2, 2)
+sb.boxplot(data = df, x = 'cat_var', y = 'num_var', color = base_color)
+plt.ylim(ax1.get_ylim()) # set y-axis limits to be same as left plot
+Note that the "color" parameter is being used here to make each box the same color. In order to provide a better comparison of the 
+violin and box plots, a ylim expression has been added to the second plot to match the two plots' y-axis limits. The Axes object 
+returned by violinplot is assigned to a variable, ax1 is used to programmatically obtain those limit values.
+
+The inner boxes and lines in the violin plot match up with the boxes and whiskers in the box plot. In a box plot, the central line in
+the box indicates the median of the distribution, while the top and bottom of the box represent the third and first quartiles of the 
+data, respectively. Thus, the height of the box is the interquartile range (IQR). From the top and bottom of the box, the whiskers 
+indicate the range from the first or third quartiles to the minimum or maximum value in the distribution. Typically, a maximum range 
+is set on whisker length; by default this is 1.5 times the IQR. For the Gamma level, there are points below the lower whisker that 
+indicate individual outlier points that are more than 1.5 times the IQR below the first quartile.
+
+Comparing the two plots, the box plot is a cleaner summary of the data than the violin plot. It's easier to compare statistics between 
+the groups with a box plot. This makes a box plot worth more consideration if you have a lot of groups to compare, or if you are 
+building explanatory plots. You can clearly see from the box plot that the Delta group has the lowest median. On the other hand, the
+box plot lacks as nuanced a depiction of distributions as the violin plot: you can't see the slight bimodality present in the Alpha 
+level values. The violin plot may be a better option for exploration, especially since seaborn's implementation also includes the box 
+plot by default.
+
+Additional Variations
+As with violinplot, boxplot can also render horizontal box plots by setting the numeric and categorical features to the appropriate 
+arguments.
+
+base_color = sb.color_palette()[0]
+sb.boxplot(data = df, x = 'num_var', y = 'cat_var', color = base_color)
+
+In violinplot, there is an additional option for plotting summary statistics in the violin, beyond the default mini box plot. By 
+setting inner = 'quartile', three lines will be plotted within each violin area for the three middle quartiles. The line with thick 
+dashes indicates the median, and the two lines with shorter dashes on either side the first and third quartiles.
+
+base_color = sb.color_palette()[0]
+sb.violinplot(data = df, x = 'cat_var', y = 'num_var', color = base_color,
+              inner = 'quartile')
+              
+ 
+
